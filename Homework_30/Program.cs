@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 internal class Program
 {
@@ -28,28 +29,27 @@ internal class Program
               {"#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#","#"}
             };
 
-        Console.CursorVisible = false;
-
-        int pacmanX;
-        int pacmanY;
+        int pacmanPositionX;
+        int pacmanPositionY;
         int pacmanDirectionX = 0;
         int pacmanDirectionY = 0;
         bool isPlaying = true;
 
+        Console.CursorVisible = false;
+
         RenderMap(map);
 
-        FindPlayer(map, out pacmanX, out pacmanY);
+        FindPlayer(map, out pacmanPositionX, out pacmanPositionY);
 
         while (isPlaying)
         {
-
             if (Console.KeyAvailable)
             {
                 Console.CursorVisible = false;
 
                 SelectDirectionPlayer(ref pacmanDirectionX, ref pacmanDirectionY);
 
-                MovePacman(map, ref pacmanY, ref pacmanX, ref pacmanDirectionX, ref pacmanDirectionY);
+                MovePacman(map, ref pacmanPositionY, ref pacmanPositionX, pacmanDirectionX, pacmanDirectionY);
             }
         }
     }
@@ -62,29 +62,28 @@ internal class Program
             {
                 Console.Write(map[i, j]);
             }
-
             Console.WriteLine();
         }
     }
 
-    static void FindPlayer(string[,] map, out int pacmanX, out int pacmanY)
+    static void FindPlayer(string[,] map, out int pacmanPositionX, out int pacmanPositionY)
     {
-        pacmanX = 0;
-        pacmanY = 0;
+        string symbolPlayerid = "@";
+        pacmanPositionX = 0;
+        pacmanPositionY = 0;
 
         for (int i = 0; i < map.GetLength(0); i++)
         {
             for (int j = 0; j < map.GetLength(1); j++)
             {
-                if (map[i, j] == "@")
+                if (map[i, j] == symbolPlayerid)
                 {
-                    pacmanX = j;
-                    pacmanY = i;
+                    pacmanPositionX = j;
+                    pacmanPositionY = i;
                 }
             }
         }
-
-        Console.SetCursorPosition(pacmanX, pacmanY);
+        DrawSetCursorPosition(pacmanPositionX, pacmanPositionY);
     }
 
     static void SelectDirectionPlayer(ref int pacmanDirectionX, ref int pacmanDirectionY)
@@ -111,18 +110,27 @@ internal class Program
         }
     }
 
-    static void MovePacman(string[,] map, ref int pacmanY, ref int pacmanX, ref int pacmanDirectionX, ref int pacmanDirectionY)
+    static void MovePacman(string[,] map, ref int pacmanPositionY, ref int pacmanPositionX, int pacmanDirectionX, int pacmanDirectionY)
     {
-        if (map[pacmanX + pacmanDirectionX, pacmanY + pacmanDirectionY] != "#")
+        string symbolPlayerid = "@";
+        string symbolWall = "#";
+        string symbolMove = " ";
+
+        if (map[pacmanPositionX + pacmanDirectionX, pacmanPositionY + pacmanDirectionY] != symbolWall)
         {
-            Console.SetCursorPosition(pacmanY, pacmanX);
-            Console.Write(" ");
+            DrawSetCursorPosition(pacmanPositionY, pacmanPositionX);
+            Console.Write(symbolMove);
 
-            pacmanX += pacmanDirectionX;
-            pacmanY += pacmanDirectionY;
+            pacmanPositionX += pacmanDirectionX;
+            pacmanPositionY += pacmanDirectionY;
 
-            Console.SetCursorPosition(pacmanY, pacmanX);
-            Console.Write("@");
+            DrawSetCursorPosition(pacmanPositionY, pacmanPositionX);
+            Console.Write(symbolPlayerid);
         }
+    }
+
+    static void DrawSetCursorPosition(int pacmanPositionY, int pacmanPositionX)
+    {
+        Console.SetCursorPosition(pacmanPositionY, pacmanPositionX);
     }
 }
